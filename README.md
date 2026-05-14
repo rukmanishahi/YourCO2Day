@@ -21,8 +21,6 @@ The website allows users to log activities such as transportation, electricity u
 ![HTML](https://img.shields.io/badge/HTML-5-E34F26)
 ![CSS](https://img.shields.io/badge/CSS-3-1572B6)
 ![JavaScript](https://img.shields.io/badge/JAVASCRIPT-ES6-F7DF1E)
-![Status](https://img.shields.io/badge/STATUS-ACTIVE-success)
-![Project](https://img.shields.io/badge/PROJECT-CARBON_TRACKER-green)
 
 ## ꩜ How It Works
 
