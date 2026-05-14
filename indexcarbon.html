@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YOUR CO₂ TODAY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Grain overlay for texture -->
+  <div class="grain-overlay"></div>
+
+  <!-- API key bar -->
+  <div class="api-bar">
+    <div class="api-bar-inner">
+      <span class="api-label">🔑 ANTHROPIC API KEY</span>
+      <input type="password" id="apiKey" placeholder="sk-ant-api03-..." autocomplete="off">
+      <span class="api-note">Stays in your browser · Never sent anywhere else</span>
+    </div>
+  </div>
+
+  <!-- Masthead -->
+  <header class="masthead">
+    <div class="mast-topbar">
+      <span class="topbar-item">Climate Intelligence — Daily Edition</span>
+      <span class="topbar-item topbar-date" id="todayDate"></span>
+      <span class="topbar-item">Vol. I · Issue 1</span>
+    </div>
+
+    <div class="mast-rule"></div>
+
+    <div class="mast-body">
+      <div class="mast-left-col">
+        <p class="mast-kicker">Personal Carbon Report</p>
+        <h1 class="hero-title">
+          <span class="ht-your">Your</span>
+          <span class="ht-co2">CO₂</span>
+          <span class="ht-today">Today</span>
+        </h1>
+      </div>
+      <div class="mast-right-col">
+        <p class="hero-sub">Just tell us what you did today.<br>We'll handle the carbon math.</p>
+        <div class="hero-globe">🌍</div>
+      </div>
+    </div>
+
+    <div class="mast-rule"></div>
+
+    <!-- Scrolling facts ticker inside header -->
+    <div class="header-ticker">
+      <span class="ticker-pip">CLIMATE FACTS</span>
+      <div class="header-ticker-track">
+        <div class="header-ticker-inner">
+          <span>🍔 One beef burger = 2.5 kg CO₂</span>
+          <span class="sep">·</span>
+          <span>📺 Streaming 1 hr = 36 g CO₂</span>
+          <span class="sep">·</span>
+          <span>✈️ Mumbai → Delhi = ~150 kg CO₂ per passenger</span>
+          <span class="sep">·</span>
+          <span>💬 Sending one short WhatsApp text is roughly comparable to keeping an LED bulb on for a few seconds.</span>
+          <span class="sep">·</span>
+          <span>❄️ AC for 8 hrs = 3.2 kg CO₂</span>
+          <span class="sep">·</span>
+          <span>🚗 Driving 10 km in a petrol car = ~2.3 kg CO₂</span>
+          <span class="sep">·</span>
+          <span>🥛 1 litre of dairy milk = 3.2 kg CO₂</span>
+          <span class="sep">·</span>
+          <span>💡 Leaving lights on all day = 0.5 kg CO₂</span>
+          <span class="sep">·</span>
+          <span>🍔 One beef burger = 2.5 kg CO₂</span>
+          <span class="sep">·</span>
+          <span>📺 Streaming 1 hr = 36 g CO₂</span>
+          <span class="sep">·</span>
+          <span>✈️ Mumbai → Delhi = ~150 kg CO₂ per passenger</span>
+          <span class="sep">·</span>
+          <span>🇮🇳 Average Indian emits 1.9 t CO₂/year</span>
+          <span class="sep">·</span>
+          <span>❄️ AC for 8 hrs = 3.2 kg CO₂</span>
+          <span class="sep">·</span>
+          <span>🚗 Driving 10 km in a petrol car = ~2.3 kg CO₂</span>
+          <span class="sep">·</span>
+          <span>🥛 1 litre of dairy milk = 3.2 kg CO₂</span>
+          <span class="sep">·</span>
+          <span>💡 Leaving lights on all day = 0.5 kg CO₂</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Input Section -->
+  <section class="input-section">
+    <div class="input-grid">
+
+      <div class="input-left">
+        <div class="section-kicker">// Track your impact</div>
+        <h2 class="input-headline">Describe<br><em>your day</em></h2>
+        <p class="input-desc">Write freely — what you ate, how you got around, what you used at home. No format needed. Our AI reads your actual day and calculates precise CO₂ estimates using IPCC &amp; IEA emission factors calibrated for India.</p>
+
+        <div class="textarea-wrap">
+          <textarea id="dayInput" placeholder="e.g. I woke up, boiled water for tea, took an Uber 8km to office, had a chicken biryani for lunch, forgot to turn the AC off when I left — it ran for 6 hours, came home by metro, ordered paneer butter masala for dinner, watched YouTube for 3 hours and charged my phone twice..."></textarea>
+          <span class="char-count" id="charCount">0 / 2000</span>
+        </div>
+
+        <div class="error-box" id="errorBox"></div>
+
+        <div class="btn-row">
+          <button class="analyse-btn" id="analyseBtn" onclick="analyseDay()">
+            <span class="btn-text">Analyse My Day</span>
+            <span class="btn-arrow">→</span>
+          </button>
+          <button class="clear-btn" id="clearBtn" onclick="clearAll()">Clear</button>
+        </div>
+      </div>
+
+      <div class="input-right">
+        <p class="preview-label">// Why this matters</p>
+        <div class="preview-card">
+          <div class="pc-icon">🌱</div>
+          <div>
+            <h4>Small choices, big numbers</h4>
+            <p>Your daily habits compound to thousands of kg CO₂ annually. Visibility is the first step to change.</p>
+          </div>
+        </div>
+        <div class="preview-card">
+          <div class="pc-icon">🧠</div>
+          <div>
+            <h4>AI-powered, not guesswork</h4>
+            <p>Claude reads your actual day and applies real emission factors — not averages from a dropdown menu.</p>
+          </div>
+        </div>
+        <div class="preview-card">
+          <div class="pc-icon">⚡</div>
+          <div>
+            <h4>India-calibrated science</h4>
+            <p>Factors are tuned to India's energy grid intensity (~0.71 kg CO₂/kWh) and food systems.</p>
+          </div>
+        </div>
+        <div class="preview-card">
+          <div class="pc-icon">📍</div>
+          <div>
+            <h4>Actionable, not preachy</h4>
+            <p>You get specific tips for your specific day — not generic advice you've heard a hundred times.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Loading State -->
+  <div id="loadingSection">
+    <div class="loading-inner">
+      <div class="loading-spinner">
+        <div class="spin-ring"></div>
+        <span class="spin-icon">🌍</span>
+      </div>
+      <p class="loading-title">Calculating your footprint...</p>
+      <div class="loading-steps">
+        <div class="lstep active" id="ls1">① Parsing activities</div>
+        <div class="lstep" id="ls2">② Applying emission factors</div>
+        <div class="lstep" id="ls3">③ Building your report</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div id="resultsSection">
+
+    <!-- Total Hero -->
+    <div class="total-hero">
+      <div class="total-left">
+        <p class="kicker">Your total for today</p>
+        <div class="total-number" id="totalNumber">—</div>
+        <div class="total-unit">kg CO₂ emitted today</div>
+        <div class="verdict-badge" id="verdictBadge">—</div>
+        <p class="comparison-line" id="comparisonLine"></p>
+        <button class="recalc-btn" onclick="scrollToInput()">← Analyse another day</button>
+      </div>
+      <div class="total-right">
+        <div class="chart-label">Breakdown by category</div>
+        <canvas id="donutChart"></canvas>
+        <div class="chart-legend" id="chartLegend"></div>
+      </div>
+    </div>
+
+    <!-- Activity Breakdown -->
+    <div class="breakdown-section">
+      <div class="section-header">
+        <div class="sh-kicker">// Detailed view</div>
+        <h2>Activity Breakdown</h2>
+      </div>
+      <div class="breakdown-grid" id="breakdownGrid"></div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="barchart-section">
+      <div class="section-header">
+        <div class="sh-kicker">// Visual comparison</div>
+        <h2>Emissions by Category</h2>
+      </div>
+      <div class="bar-chart-wrap">
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Tips Sections -->
+    <div class="tips-section">
+      <div class="section-header tips-header">
+        <div>
+          <div class="sh-kicker">// For you</div>
+          <h2>At Home — What You Can Do</h2>
+        </div>
+        <span class="tips-badge">Personalised tips</span>
+      </div>
+      <div class="tips-grid" id="homeTips"></div>
+    </div>
+
+    <div class="tips-section">
+      <div class="section-header tips-header">
+        <div>
+          <div class="sh-kicker">// Around you</div>
+          <h2>In Your Area — Local Actions</h2>
+        </div>
+        <span class="tips-badge">Community tips</span>
+      </div>
+      <div class="tips-grid" id="areaTips"></div>
+    </div>
+
+    <!-- Daily Comparison Context -->
+    <div class="context-section">
+      <div class="section-header">
+        <div class="sh-kicker">// Context</div>
+        <h2>How Does This Compare?</h2>
+      </div>
+      <div class="context-grid" id="contextGrid"></div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Ticker -->
+  <div class="ticker-footer">
+    <span class="ticker-pip">LIVE · CLIMATE FACTS</span>
+    <div class="ticker-track-bottom">
+      <div class="ticker-inner-bottom">
+        <span>The Amazon rainforest absorbs ~2 billion tonnes of CO₂/year 🌿</span>
+        <span class="sep">·</span>
+        <span>India's total CO₂ emissions: ~2.9 Gt/year 📊</span>
+        <span class="sep">·</span>
+        <span>A single tree absorbs ~22 kg CO₂/year 🌳</span>
+        <span class="sep">·</span>
+        <span>Electric 2-wheelers emit 70% less CO₂ than petrol ones ⚡</span>
+        <span class="sep">·</span>
+        <span>Replacing one car trip/week with cycling saves ~150 kg CO₂/year 🚲</span>
+        <span class="sep">·</span>
+        <span>India's solar capacity crossed 70 GW in 2024 ☀️</span>
+        <span class="sep">·</span>
+        <span>The Amazon rainforest absorbs ~2 billion tonnes of CO₂/year 🌿</span>
+        <span class="sep">·</span>
+        <span>India's total CO₂ emissions: ~2.9 Gt/year 📊</span>
+        <span class="sep">·</span>
+        <span>A single tree absorbs ~22 kg CO₂/year 🌳</span>
+        <span class="sep">·</span>
+        <span>Electric 2-wheelers emit 70% less CO₂ than petrol ones ⚡</span>
+        <span class="sep">·</span>
+        <span>Replacing one car trip/week with cycling saves ~150 kg CO₂/year 🚲</span>
+        <span class="sep">·</span>
+        <span>India's solar capacity crossed 70 GW in 2024 ☀️</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer with Logo -->
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="footer-col">
+        <p class="footer-title">YOUR CO₂ TODAY</p>
+        <p class="footer-sub">A personal carbon intelligence tool<br>powered by Claude AI</p>
+      </div>
+      <div class="footer-col footer-mid">
+        <p class="footer-meta">Emission factors: IPCC AR6 · IEA 2023</p>
+        <p class="footer-meta">Grid intensity: Central Electricity Authority of India</p>
+        <p class="footer-meta">For awareness purposes only · 2025</p>
+      </div>
+      <div class="footer-col footer-right-col">
+        <p class="footer-meta">Built with</p>
+        <p class="footer-meta">Claude Sonnet · Chart.js</p>
+      </div>
+    </div>
+
+    <div class="footer-rule"></div>
+
+    <!-- ============================================================
+         YOUR LOGO GOES HERE
+         Replace "your-logo-shadow.png" with your actual filename.
+         The image tag below has class="brand-logo" — style it in CSS.
+         ============================================================ -->
+    <div class="brand-logo-wrap">
+      <img
+        src="your-logo-shadow.png"
+        alt="Brand Logo"
+        class="brand-logo"
+        onerror="this.style.display='none'"
+      >
+      <!-- Fallback placeholder shown only when logo file is missing -->
+      <div class="logo-placeholder" id="logoPlaceholder">
+        <!-- Replace the src above with your logo file path to show it here -->
+        <span>[ Place your logo file as <code>your-logo-shadow.png</code> in the same folder ]</span>
+      </div>
+    </div>
+
+    <p class="footer-copy">© 2025 · CO₂ Tracker · All estimates are approximations based on published emission factors.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
